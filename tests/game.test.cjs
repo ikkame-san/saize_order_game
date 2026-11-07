@@ -10,7 +10,7 @@ function setup(random = Math.random, initialStorage = {}) {
   let timerID = 0;
   let now = 0;
   class Element {
-    constructor() { this._textContent = ''; this.disabled = false; this.open = false; this.events = {}; this.attrs = {}; this.children = []; this.dataset = {}; this.classes = new Set(); this.classList = { add: (v) => this.classes.add(v), remove: (v) => this.classes.delete(v), toggle: (v, on) => on ? this.classes.add(v) : this.classes.delete(v) }; }
+    constructor(tagName = '') { this.tagName = tagName.toUpperCase(); this._textContent = ''; this.disabled = false; this.open = false; this.events = {}; this.attrs = {}; this.children = []; this.dataset = {}; this.classes = new Set(); this.classList = { add: (v) => this.classes.add(v), remove: (v) => this.classes.delete(v), toggle: (v, on) => on ? this.classes.add(v) : this.classes.delete(v) }; }
     get textContent() { return this._textContent + this.children.map((child) => child.textContent).join(''); }
     set textContent(value) { this._textContent = String(value); this.children = []; }
     addEventListener(name, handler) { (this.events[name] ??= []).push(handler); }
@@ -38,7 +38,7 @@ function setup(random = Math.random, initialStorage = {}) {
     return get(selector);
   };
   document.querySelectorAll = (selector) => ({ '[data-key]': keys, dialog: dialogs })[selector];
-  document.createElement = () => new Element();
+  document.createElement = (tagName) => new Element(tagName);
   const storage = new Map(Object.entries(initialStorage));
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, '..', 'game.js'), 'utf8'), {
     document, window: {}, console, performance: { now: () => now },
@@ -277,6 +277,27 @@ test('注文番号は別の行に移り、4桁は強調しながら400msずつ�
   assert.equal(number.className, 'order-number');
   assert.equal(number.classes.has('typing'), false);
   assert.equal(app.customers()[0].children[1].textContent, `${intro}\n注文番号は3901`);
+});
+
+test('料理名だけを太字にし、文字送り中も料理名が1文字ずつ現れる', () => {
+  const app = setup(() => 0.999999); app.start();
+  const introduction = app.customers()[0].children[0].children[0];
+  const [prefix, menuName, suffix] = introduction.children;
+  const name = 'ティラミス クラシコ';
+  assert.equal(menuName.tagName, 'STRONG');
+  assert.equal(menuName.className, 'menu-name-emphasis');
+  app.tick(800);
+  assert.equal(prefix.textContent, '私は');
+  assert.equal(menuName.textContent, '');
+  assert.equal(suffix.textContent, '');
+  app.tick(399); assert.equal(menuName.textContent, '');
+  app.tick(1); assert.equal(menuName.textContent, 'テ');
+  app.tick(([...name].length - 1) * 400);
+  assert.equal(menuName.textContent, name);
+  assert.equal(suffix.textContent, '');
+  app.tick(400);
+  assert.equal(suffix.textContent, 'が');
+  assert.equal(introduction.textContent, `私は${name}が`);
 });
 
 

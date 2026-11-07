@@ -132,6 +132,7 @@ dialog{border:1px solid #d9ddce;background:#fffdf7;color:var(--ink);border-radiu
 
 .rush-customer .order-number-line{display:block;white-space:nowrap}
 .rush-customer .order-number{font-size:1.18em;font-weight:900;letter-spacing:.02em;color:#164a37}
+.rush-customer .menu-name-emphasis{font-weight:900;color:#164a37}
 @media(min-width:761px){.rush-customer p{font-size:26px}}
 @media(max-width:760px){.rush-customer,.rush-customer[hidden]{padding-top:3px;padding-bottom:4px}}
 

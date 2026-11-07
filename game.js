@@ -118,6 +118,8 @@
     const person = state.speakerSequence++ % 2 === 0 ? '私' : '僕';
     const introduction = `${person}は${menu.name}が食べたい！${menu.timing ? `${menu.timing}持ってきて！` : ''}`;
     const orderLabel = '注文番号は';
+    const prefixLength = [...`${person}は`].length;
+    const menuNameLength = [...menu.name].length;
     const introductionLength = [...introduction].length;
     const labelLength = [...orderLabel].length;
     const characters = [...introduction, ...orderLabel, ...menu.code];
@@ -132,6 +134,11 @@
     text.setAttribute('aria-hidden', 'true');
     const introductionText = document.createElement('span');
     introductionText.className = 'typing';
+    const prefixText = document.createElement('span');
+    const menuNameText = document.createElement('strong');
+    menuNameText.className = 'menu-name-emphasis';
+    const suffixText = document.createElement('span');
+    introductionText.append(prefixText, menuNameText, suffixText);
     const orderLine = document.createElement('span');
     orderLine.className = 'order-number-line';
     orderLine.hidden = true;
@@ -145,7 +152,7 @@
     accessible.setAttribute('role', 'status');
     accessible.setAttribute('aria-live', 'polite');
     card.append(text, accessible);
-    return { menu, characters, introductionLength, labelLength, index: 0, startsAt, nextCharacterAt: startsAt + CHARACTER_DELAY, card, text, introductionText, orderLine, labelText, orderNumber, accessible };
+    return { menu, characters, prefixLength, menuNameLength, introductionLength, labelLength, index: 0, startsAt, nextCharacterAt: startsAt + CHARACTER_DELAY, card, text, introductionText, prefixText, menuNameText, suffixText, orderLine, labelText, orderNumber, accessible };
   }
   function renderRequests() {
     $('.customer-area').replaceChildren(...state.customers.map((customer) => customer.card));
@@ -173,7 +180,11 @@
         customer.nextCharacterAt = currentTime + CHARACTER_DELAY;
         const visible = customer.characters.slice(0, customer.index);
         const orderPart = visible.slice(customer.introductionLength);
-        customer.introductionText.textContent = visible.slice(0, customer.introductionLength).join('');
+        const introPart = visible.slice(0, customer.introductionLength);
+        const nameEnd = customer.prefixLength + customer.menuNameLength;
+        customer.prefixText.textContent = introPart.slice(0, customer.prefixLength).join('');
+        customer.menuNameText.textContent = introPart.slice(customer.prefixLength, nameEnd).join('');
+        customer.suffixText.textContent = introPart.slice(nameEnd).join('');
         customer.orderLine.hidden = orderPart.length === 0;
         customer.labelText.textContent = orderPart.slice(0, customer.labelLength).join('');
         customer.orderNumber.textContent = orderPart.slice(customer.labelLength).join('');

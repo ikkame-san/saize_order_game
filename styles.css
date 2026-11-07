@@ -103,7 +103,7 @@ dialog{border:1px solid #d9ddce;background:#fffdf7;color:var(--ink);border-radiu
 
 /* On phones, reserve enough room to read the orders in a vertical list. */
 @media(max-width:760px){
-  :root{--phone-pad-height:clamp(325px,44dvh,380px)}
+  :root{--phone-pad-height:clamp(340px,47dvh,405px)}
   .restaurant{height:calc(100dvh - var(--phone-pad-height) - 53px);padding:0 8px 6px;gap:5px}
   .is-playing .restaurant{padding:0 8px 6px;gap:5px}
   .customer-area.rush-mode{

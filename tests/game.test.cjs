@@ -293,7 +293,7 @@ test('注文番号は別の行に移り、4桁は強調しながら400msずつ�
   app.tick([...intro].length * 400);
   assert.equal(body.textContent, intro);
   assert.equal(line.hidden, true);
-  app.tick(1499); assert.equal(line.hidden, true);
+  app.tick(3999); assert.equal(line.hidden, true);
   app.tick(1);
   assert.equal(line.hidden, false);
   assert.equal(label.textContent, '注');
@@ -342,6 +342,6 @@ test('注文番号前の待ち時間中も他の注文は進み、画面復帰�
   app.document.hidden = true; app.document.fire('visibilitychange');
   app.tick(2000);
   app.document.hidden = false; app.document.fire('visibilitychange');
-  app.tick(1499); assert.equal(line.hidden, true);
+  app.tick(3999); assert.equal(line.hidden, true);
   app.tick(1); assert.equal(line.hidden, false);
 });

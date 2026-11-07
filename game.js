@@ -160,7 +160,7 @@
   const MAX_PENDING = 3;
   const GAME_DURATION = 60_000;
   const CHARACTER_DELAY = 400;
-  const ORDER_NUMBER_DELAY = 1500;
+  const ORDER_NUMBER_DELAY = 4000;
   const ORDER_START_INTERVAL = 4000;
   const REFILL_DELAY = 1500;
   const BEST_KEY = 'saize-order-timeattack-best';

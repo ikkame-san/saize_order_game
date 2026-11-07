@@ -104,7 +104,7 @@ test('開始までは進まず、3枠の注文が4秒間隔で始まり、400ms�
 });
 
 test('正解した枠だけを補充し、他の2件の会話は維持する。不正解は補充しない', () => {
-  const app = setup(() => 0.999999); app.start(); app.tick(20000);
+  const app = setup(() => 0.999999); app.start(); app.tick(24000);
   const before = [...app.customers()];
   const codes = app.allCodes();
   app.type(codes[1]); app.submit();
@@ -249,7 +249,7 @@ test('注文外でも品名は表示し、削除・4桁制限・PC入力・誤�
 });
 
 test('連続で注文を済ませると各枠で1.5秒後に補充し、開始待ちの番号は正解にしない', () => {
-  const app = setup(() => 0.999999); app.start(); app.tick(20000);
+  const app = setup(() => 0.999999); app.start(); app.tick(24000);
   app.allCodes().forEach((code) => { app.type(code); app.submit(); });
   assert.equal(app.get('#score').textContent, '3');
   assert.equal(app.customers().length, 3);
@@ -293,7 +293,7 @@ test('注文番号は別の行に移り、4桁は強調しながら400msずつ�
   app.tick([...intro].length * 400);
   assert.equal(body.textContent, intro);
   assert.equal(line.hidden, true);
-  app.tick(399); assert.equal(line.hidden, true);
+  app.tick(1499); assert.equal(line.hidden, true);
   app.tick(1);
   assert.equal(line.hidden, false);
   assert.equal(label.textContent, '注');
@@ -328,4 +328,20 @@ test('料理名だけを太字にし、文字送り中も料理名が1文字ず�
   app.tick(400);
   assert.equal(suffix.textContent, 'が');
   assert.equal(introduction.textContent, `私はあとで${name}が`);
+});
+
+test('注文番号前の待ち時間中も他の注文は進み、画面復帰時に待ちを飛ばさない', () => {
+  const app = setup(() => 0.999999); app.start();
+  const intro = '私はあとでティラミス クラシコが食べたい！';
+  app.tick([...intro].length * 400);
+  const line = app.customers()[0].children[0].children[1];
+  const otherBefore = app.speech(1);
+  app.tick(400);
+  assert.equal(line.hidden, true);
+  assert.ok(app.speech(1).length > otherBefore.length);
+  app.document.hidden = true; app.document.fire('visibilitychange');
+  app.tick(2000);
+  app.document.hidden = false; app.document.fire('visibilitychange');
+  app.tick(1499); assert.equal(line.hidden, true);
+  app.tick(1); assert.equal(line.hidden, false);
 });

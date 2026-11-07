@@ -160,6 +160,7 @@
   const MAX_PENDING = 3;
   const GAME_DURATION = 60_000;
   const CHARACTER_DELAY = 400;
+  const ORDER_NUMBER_DELAY = 1500;
   const ORDER_START_INTERVAL = 4000;
   const REFILL_DELAY = 1500;
   const BEST_KEY = 'saize-order-timeattack-best';
@@ -304,10 +305,10 @@
           return;
         }
         customer.card.hidden = currentTime < customer.startsAt;
-        if (paused) { customer.nextCharacterAt = Math.max(customer.startsAt, currentTime) + CHARACTER_DELAY; return; }
+        if (paused) { customer.nextCharacterAt = Math.max(customer.startsAt, currentTime) + (customer.index === customer.introductionLength ? ORDER_NUMBER_DELAY : CHARACTER_DELAY); return; }
         if (customer.index >= customer.characters.length || currentTime < customer.nextCharacterAt) return;
         customer.index += 1;
-        customer.nextCharacterAt = currentTime + CHARACTER_DELAY;
+        customer.nextCharacterAt = currentTime + (customer.index === customer.introductionLength ? ORDER_NUMBER_DELAY : CHARACTER_DELAY);
         const visible = customer.characters.slice(0, customer.index);
         const orderPart = visible.slice(customer.introductionLength);
         const introPart = visible.slice(0, customer.introductionLength);
@@ -470,7 +471,7 @@
   $('#result-close').addEventListener('click', () => $('#result-dialog').close());
   document.addEventListener('visibilitychange', () => {
     if (state.phase === 'playing' && timeAvailable()) {
-      state.customers.forEach((customer) => { customer.nextCharacterAt = Math.max(customer.startsAt, performance.now()) + CHARACTER_DELAY; });
+      state.customers.forEach((customer) => { customer.nextCharacterAt = Math.max(customer.startsAt, performance.now()) + (customer.index === customer.introductionLength ? ORDER_NUMBER_DELAY : CHARACTER_DELAY); });
       scheduleTick();
     }
   });

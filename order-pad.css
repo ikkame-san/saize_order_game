@@ -151,10 +151,10 @@
     flex:0 0 110px;width:110px;height:42px;min-height:0;margin:0;font-size:17px;
   }
   .reference-panel:not(:has(.keypad button:enabled)) .submit-button{width:110px;font-size:15px}
-  .reference-panel .code-display{height:40px;font-size:32px}
+  .reference-panel .code-display{height:44px;font-size:34px}
   .reference-panel .keypad{flex:1;min-height:0;gap:4px}
-  .reference-panel .keypad button{font-size:clamp(24px,5dvh,32px);border-radius:8px}
-  .reference-panel .keypad .delete-key{font-size:clamp(21px,4.2dvh,26px)}
+  .reference-panel .keypad button{font-size:clamp(26px,5.3dvh,35px);border-radius:8px}
+  .reference-panel .keypad .delete-key{font-size:clamp(22px,4.5dvh,28px)}
   .reference-panel .entry-status{height:21px}
   .reference-panel .feedback,.reference-panel .clear-link{font-size:11px}
   .reference-panel .order-menu-link{padding:0 10px 3px;min-height:25px}

@@ -103,7 +103,7 @@ dialog{border:1px solid #d9ddce;background:#fffdf7;color:var(--ink);border-radiu
 
 /* On phones, reserve enough room to read the orders in a vertical list. */
 @media(max-width:760px){
-  :root{--phone-pad-height:clamp(310px,42dvh,360px)}
+  :root{--phone-pad-height:clamp(325px,44dvh,380px)}
   .restaurant{height:calc(100dvh - var(--phone-pad-height) - 53px);padding:0 8px 6px;gap:5px}
   .is-playing .restaurant{padding:0 8px 6px;gap:5px}
   .customer-area.rush-mode{
@@ -125,7 +125,7 @@ dialog{border:1px solid #d9ddce;background:#fffdf7;color:var(--ink);border-radiu
   .restaurant,.is-playing .restaurant{height:calc(100dvh - var(--phone-pad-height) - 44px)}
 }
 @media(max-width:760px) and (max-height:540px){
-  :root{--phone-pad-height:max(245px,58dvh)}
+  :root{--phone-pad-height:max(255px,60dvh)}
   .rush-customer,.rush-customer[hidden]{padding:3px 6px 4px}
   .rush-customer p,.rush-customer.served p{font-size:clamp(11px,2.4dvh,13px);line-height:1.2}
 }

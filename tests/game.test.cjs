@@ -122,7 +122,11 @@ test('正解した枠だけを補充し、他の2件の会話は維持する。�
   assert.notEqual(app.customers()[1], before[1]);
   assert.equal(app.speech(1), '');
   assert.equal(app.customers()[1].hidden, true);
-  app.tick(3699);
+  app.tick(799);
+  assert.equal(app.customers()[1].hidden, true);
+  app.tick(1);
+  assert.equal(app.customers()[1].hidden, false);
+  app.tick(399);
   assert.equal(app.speech(1), '');
   app.tick(1);
   assert.equal([...app.speech(1)].length, 1);
@@ -244,7 +248,7 @@ test('注文外でも品名は表示し、削除・4桁制限・PC入力・誤�
   assert.equal(app.get('#result-accuracy').textContent, '50%');
 });
 
-test('連続で注文を済ませても補充は4秒ずつずれ、開始待ちの番号は正解にしない', () => {
+test('連続で注文を済ませると各枠で1.5秒後に補充し、開始待ちの番号は正解にしない', () => {
   const app = setup(() => 0.999999); app.start(); app.tick(20000);
   app.allCodes().forEach((code) => { app.type(code); app.submit(); });
   assert.equal(app.get('#score').textContent, '3');
@@ -254,20 +258,28 @@ test('連続で注文を済ませても補充は4秒ずつずれ、開始待ち�
   assert.equal(app.get('#score').textContent, '3');
   app.tick(700);
   app.customers().forEach((card) => assert.equal(card.hidden, true));
-  app.tick(3299);
+  app.tick(799);
   app.customers().forEach((card) => assert.equal(card.hidden, true));
+  app.tick(1);
+  app.customers().forEach((card) => assert.equal(card.hidden, false));
+  assert.equal(app.speech(0), '');
+  app.tick(399); assert.equal(app.speech(0), '');
+  app.tick(1);
+  app.customers().forEach((card, index) => assert.equal([...app.speech(index)].length, 1));
+});
+
+test('最初の開始待ちがある間も、正解した枠は1.5秒で補充する', () => {
+  const app = setup(() => 0.999999); app.start();
+  app.type('3901'); app.submit();
+  app.tick(1499);
+  assert.equal(app.customers()[0].hidden, true);
+  assert.equal(app.customers()[1].hidden, true);
   app.tick(1);
   assert.equal(app.customers()[0].hidden, false);
   assert.equal(app.customers()[1].hidden, true);
-  assert.equal(app.speech(0), '');
-  app.tick(399); assert.equal(app.speech(0), '');
-  app.tick(1); assert.equal([...app.speech(0)].length, 1);
-  app.tick(3600);
+  app.tick(2500);
   assert.equal(app.customers()[1].hidden, false);
   assert.equal(app.customers()[2].hidden, true);
-  app.tick(400); assert.equal([...app.speech(1)].length, 1);
-  app.tick(3600); assert.equal(app.customers()[2].hidden, false);
-  app.tick(400); assert.equal([...app.speech(2)].length, 1);
 });
 
 test('注文番号は別の行に移り、4桁は強調しながら400msずつ表示される', () => {

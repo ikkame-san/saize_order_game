@@ -161,13 +161,14 @@
   const GAME_DURATION = 60_000;
   const CHARACTER_DELAY = 400;
   const ORDER_START_INTERVAL = 4000;
+  const REFILL_DELAY = 1500;
   const BEST_KEY = 'saize-order-timeattack-best';
   const $ = (selector) => document.querySelector(selector);
   const keys = [...document.querySelectorAll('[data-key]')];
   const dialogs = [...document.querySelectorAll('dialog')];
   const state = {
     phase: 'ready', code: '', errorMessage: '', combo: 0, maxCombo: 0, mistakes: 0,
-    orders: [], customers: [], requestCounts: {}, speakerSequence: 0, deadline: 0, nextRequestStartAt: 0,
+    orders: [], customers: [], requestCounts: {}, speakerSequence: 0, deadline: 0,
     tickTimer: null, pendingResult: false, sound: false, audio: null, best: 0,
   };
   try { state.best = Number(localStorage.getItem(BEST_KEY)) || 0; } catch { /* Storage is optional. */ }
@@ -227,7 +228,7 @@
     $('#submit-button').disabled = playing ? !complete : state.phase !== 'finished';
   }
 
-  function createRequest(excludeCode, startDelay = ORDER_START_INTERVAL) {
+  function createRequest(excludeCode, startDelay = REFILL_DELAY) {
     const activeCodes = new Set(state.customers.flatMap((customer) => [customer.menu.code, customer.replacement?.menu.code].filter(Boolean)));
     const candidates = REQUEST_MENUS.filter((menu) => !activeCodes.has(menu.code) && menu.code !== excludeCode);
     // Prefer the dishes requested least often; choose randomly among ties.
@@ -245,8 +246,7 @@
     const labelLength = [...orderLabel].length;
     const characters = [...introduction, ...orderLabel, ...menu.code];
     const now = performance.now();
-    const startsAt = Math.max(now + startDelay, state.nextRequestStartAt);
-    state.nextRequestStartAt = startsAt + ORDER_START_INTERVAL;
+    const startsAt = now + startDelay;
     const card = document.createElement('article');
     card.className = 'speech-bubble rush-customer';
     card.hidden = startsAt > now;
@@ -332,7 +332,7 @@
   function startGame() {
     stopTicker();
     const now = performance.now();
-    Object.assign(state, { phase: 'playing', code: '', combo: 0, maxCombo: 0, mistakes: 0, orders: [], customers: [], requestCounts: {}, speakerSequence: 0, deadline: now + GAME_DURATION, nextRequestStartAt: now, pendingResult: false });
+    Object.assign(state, { phase: 'playing', code: '', combo: 0, maxCombo: 0, mistakes: 0, orders: [], customers: [], requestCounts: {}, speakerSequence: 0, deadline: now + GAME_DURATION, pendingResult: false });
     $('#score').textContent = '0';
     $('#submit-button span').textContent = '次へ進む';
     $('#start-screen').hidden = true;
@@ -343,7 +343,7 @@
     $('.customer-area').classList.add('rush-mode');
     $('.customer-area').scrollTop = 0;
     $('#rush-status').hidden = false;
-    for (let index = 0; index < MAX_PENDING; index += 1) state.customers.push(createRequest(undefined, 0));
+    for (let index = 0; index < MAX_PENDING; index += 1) state.customers.push(createRequest(undefined, index * ORDER_START_INTERVAL));
     renderRequests();
     feedback('');
     renderCode();

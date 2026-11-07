@@ -134,7 +134,7 @@ test('5品を超えて注文でき、60秒で終了。ベストは注文数を�
   app.start();
   for (let index = 0; index < 8; index += 1) {
     app.tick(index === 0 ? 0 : index === 1 ? 12000 : 4000);
-    app.type(index % 2 === 0 ? '3901' : '2328'); app.submit();
+    app.type(['3901', '1405', '2301', '2203', '1401', '1202', '2101', '3914'][index]); app.submit();
     assert.equal(app.customers().length, 3);
     assert.equal(app.get('#score').textContent, String(index + 1));
   }
@@ -204,13 +204,25 @@ test('再プレイは新しい60秒・3件・注文数ゼロから始まりベ�
 test('デザートはすぐに／あとでを明言し、別の番号で扱う', () => {
   const app = setup(() => 0.999999); app.start(); app.tick(20000);
   assert.match(app.speech(0), /あとで持ってきて！注文番号は3901$/);
-  assert.match(app.speech(1), /すぐに持ってきて！注文番号は3201$/);
+  const dessertNow = setup(() => 0.99); dessertNow.start(); dessertNow.tick(20000);
+  assert.match(dessertNow.speech(0), /すぐに持ってきて！注文番号は3201$/);
   app.type('3201');
   assert.equal(app.get('#menu-preview').textContent, 'ティラミス クラシコ（すぐに）');
   app.submit();
   assert.match(app.speech(0), /3901$/);
   app.type('3901'); app.submit();
-  assert.equal(app.get('#score').textContent, '2');
+  assert.equal(app.get('#score').textContent, '1');
+  dessertNow.type('3201'); dessertNow.submit();
+  assert.equal(dessertNow.get('#score').textContent, '1');
+});
+
+test('追加メニューや飲み物も出題され、飲み物は飲みたいと伝える', () => {
+  const food = setup(() => 0); food.start(); food.tick(20000);
+  assert.match(food.speech(0), /蒸し鶏の香味ソースが食べたい！注文番号は1408$/);
+  const drink = setup(() => 26.5 / 105); drink.start(); drink.tick(20000);
+  assert.match(drink.speech(0), /キッズドリンクバーが飲みたい！注文番号は5102$/);
+  drink.type('5102'); drink.submit();
+  assert.equal(drink.get('#score').textContent, '1');
 });
 
 test('注文外でも品名は表示し、削除・4桁制限・PC入力・誤注文判定を維持する', () => {

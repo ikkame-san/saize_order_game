@@ -238,9 +238,10 @@
     state.requestCounts[menu.name] = (state.requestCounts[menu.name] || 0) + 1;
     const person = state.speakerSequence++ % 2 === 0 ? '私' : '僕';
     const action = /^(33|34|51)/.test(menu.code) ? '飲みたい' : /^(43|53)/.test(menu.code) ? '欲しい' : '食べたい';
-    const introduction = `${person}は${menu.name}が${action}！${menu.timing ? `${menu.timing}持ってきて！` : ''}`;
+    const prefix = `${person}は${menu.timing || ''}`;
+    const introduction = `${prefix}${menu.name}が${action}！`;
     const orderLabel = '注文番号は';
-    const prefixLength = [...`${person}は`].length;
+    const prefixLength = [...prefix].length;
     const menuNameLength = [...menu.name].length;
     const introductionLength = [...introduction].length;
     const labelLength = [...orderLabel].length;

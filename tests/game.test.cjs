@@ -207,9 +207,9 @@ test('再プレイは新しい60秒・3件・注文数ゼロから始まりベ�
 
 test('デザートはすぐに／あとでを明言し、別の番号で扱う', () => {
   const app = setup(() => 0.999999); app.start(); app.tick(20000);
-  assert.match(app.speech(0), /あとで持ってきて！注文番号は3901$/);
+  assert.match(app.speech(0), /^私はあとでティラミス クラシコが食べたい！注文番号は3901$/);
   const dessertNow = setup(() => 0.99); dessertNow.start(); dessertNow.tick(20000);
-  assert.match(dessertNow.speech(0), /すぐに持ってきて！注文番号は3201$/);
+  assert.match(dessertNow.speech(0), /^私はすぐにティラミス クラシコが食べたい！注文番号は3201$/);
   app.type('3201');
   assert.equal(app.get('#menu-preview').textContent, 'ティラミス クラシコ（すぐに）');
   app.submit();
@@ -284,7 +284,7 @@ test('最初の開始待ちがある間も、正解した枠は1.5秒で補充�
 
 test('注文番号は別の行に移り、4桁は強調しながら400msずつ表示される', () => {
   const app = setup(() => 0.999999); app.start();
-  const intro = '私はティラミス クラシコが食べたい！あとで持ってきて！';
+  const intro = '私はあとでティラミス クラシコが食べたい！';
   const text = app.customers()[0].children[0];
   const body = text.children[0];
   const line = text.children[1];
@@ -316,8 +316,8 @@ test('料理名だけを太字にし、文字送り中も料理名が1文字ず�
   const name = 'ティラミス クラシコ';
   assert.equal(menuName.tagName, 'STRONG');
   assert.equal(menuName.className, 'menu-name-emphasis');
-  app.tick(800);
-  assert.equal(prefix.textContent, '私は');
+  app.tick(2000);
+  assert.equal(prefix.textContent, '私はあとで');
   assert.equal(menuName.textContent, '');
   assert.equal(suffix.textContent, '');
   app.tick(399); assert.equal(menuName.textContent, '');
@@ -327,5 +327,5 @@ test('料理名だけを太字にし、文字送り中も料理名が1文字ず�
   assert.equal(suffix.textContent, '');
   app.tick(400);
   assert.equal(suffix.textContent, 'が');
-  assert.equal(introduction.textContent, `私は${name}が`);
+  assert.equal(introduction.textContent, `私はあとで${name}が`);
 });

@@ -52,7 +52,7 @@
   const keys = [...document.querySelectorAll('[data-key]')];
   const dialogs = [...document.querySelectorAll('dialog')];
   const state = {
-    phase: 'ready', code: '', combo: 0, maxCombo: 0, mistakes: 0,
+    phase: 'ready', code: '', errorMessage: '', combo: 0, maxCombo: 0, mistakes: 0,
     orders: [], customers: [], speakerSequence: 0, deadline: 0, nextRequestStartAt: 0,
     tickTimer: null, pendingResult: false, sound: false, audio: null, best: 0,
   };
@@ -77,7 +77,8 @@
     } catch { /* Sound is optional. */ }
   }
   function feedback(message, kind = '') {
-    $('#feedback').textContent = message;
+    state.errorMessage = kind === 'error' ? message : '';
+    $('#feedback').textContent = kind === 'error' ? '' : message;
     $('#feedback').className = `feedback ${kind}`;
   }
   function menuLabel(menu) { return menu.name + (menu.timing ? `（${menu.timing}）` : ''); }
@@ -102,17 +103,18 @@
     const playing = state.phase === 'playing';
     const complete = state.code.length === 4;
     const menu = complete ? MENU_CATALOG.find((item) => item.code === state.code) : null;
-    $('#order-emblem').hidden = complete;
-    $('#menu-preview').hidden = !complete;
-    $('#menu-preview').textContent = menu ? menuLabel(menu) : '番号を確認';
+    $('#order-emblem').hidden = complete || Boolean(state.errorMessage);
+    $('#menu-preview').hidden = !complete && !state.errorMessage;
+    $('#menu-preview').textContent = state.errorMessage || (menu ? menuLabel(menu) : '番号を確認');
     $('#menu-preview').classList.toggle('unknown-menu', complete && !menu);
+    $('#menu-preview').classList.toggle('order-error', Boolean(state.errorMessage));
     keys.forEach((key) => { key.disabled = !playing; });
     $('#submit-button').hidden = state.phase === 'ready' || (playing && !complete);
     $('#submit-button').disabled = playing ? !complete : state.phase !== 'finished';
   }
 
   function createRequest(excludeCode, startDelay = ORDER_START_INTERVAL) {
-    const activeCodes = new Set(state.customers.map((customer) => customer.menu.code));
+    const activeCodes = new Set(state.customers.flatMap((customer) => [customer.menu.code, customer.replacement?.menu.code].filter(Boolean)));
     const candidates = ORDER_MENUS.filter((menu) => !activeCodes.has(menu.code) && menu.code !== excludeCode);
     const menu = candidates[Math.floor(Math.random() * candidates.length)];
     const person = state.speakerSequence++ % 2 === 0 ? '私' : '僕';
@@ -165,14 +167,22 @@
     stopTicker();
     if (state.phase !== 'playing') return;
     const now = performance.now();
-    const nextCharacter = readingPaused() ? 100 : Math.min(...state.customers.map((customer) => customer.startsAt > now ? customer.startsAt - now : customer.index < customer.characters.length ? Math.max(1, customer.nextCharacterAt - now) : 100));
+    const nextCharacter = readingPaused() ? 100 : Math.min(...state.customers.map((customer) => customer.served ? Math.max(1, customer.deliverUntil - now) : customer.startsAt > now ? customer.startsAt - now : customer.index < customer.characters.length ? Math.max(1, customer.nextCharacterAt - now) : 100));
     const delay = Math.max(0, Math.min(100, state.deadline - now, nextCharacter));
     state.tickTimer = setTimeout(() => {
       state.tickTimer = null;
       if (!timeAvailable()) return;
       const currentTime = performance.now();
       const paused = readingPaused();
-      state.customers.forEach((customer) => {
+      let requestsChanged = false;
+      state.customers.forEach((customer, index) => {
+        if (customer.served) {
+          if (currentTime >= customer.deliverUntil) {
+            state.customers[index] = customer.replacement;
+            requestsChanged = true;
+          }
+          return;
+        }
         customer.card.hidden = currentTime < customer.startsAt;
         if (paused) { customer.nextCharacterAt = Math.max(customer.startsAt, currentTime) + CHARACTER_DELAY; return; }
         if (customer.index >= customer.characters.length || currentTime < customer.nextCharacterAt) return;
@@ -196,6 +206,7 @@
           customer.accessible.textContent = `${customer.characters.slice(0, customer.introductionLength).join('')}\n${customer.characters.slice(customer.introductionLength).join('')}`;
         }
       });
+      if (requestsChanged) renderRequests();
       scheduleTick();
     }, delay);
   }
@@ -234,7 +245,7 @@
   function submitOrder() {
     if (state.phase === 'finished') { startGame(); return; }
     if (!timeAvailable() || readingPaused() || state.code.length !== 4) return;
-    const index = state.customers.findIndex((customer) => customer.menu.code === state.code && performance.now() >= customer.startsAt);
+    const index = state.customers.findIndex((customer) => !customer.served && customer.menu.code === state.code && performance.now() >= customer.startsAt);
     if (index < 0) {
       state.mistakes += 1;
       state.combo = 0;
@@ -247,9 +258,12 @@
       state.orders.push(customer.menu);
       state.combo += 1;
       state.maxCombo = Math.max(state.maxCombo, state.combo);
-      // Reserve this slot, then let the next friend start after a short interval.
-      state.customers[index] = createRequest(customer.menu.code);
-      renderRequests();
+      // Reserve the next request immediately, while the success effect plays.
+      customer.replacement = createRequest(customer.menu.code);
+      customer.served = true;
+      customer.deliverUntil = performance.now() + 700;
+      customer.card.classList.add('order-correct');
+      customer.accessible.textContent = '正解！';
       $('#score').textContent = String(state.orders.length);
       feedback('✓', 'success');
       $('.order-panel').classList.add('celebrate');
@@ -353,6 +367,3 @@
   renderCode();
   renderTime();
 })();
-
-
-

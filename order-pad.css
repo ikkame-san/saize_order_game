@@ -8,6 +8,8 @@
   background:#fff; color:#222; box-shadow:0 12px 36px #173a2820;
   font-family:var(--ui-font);
 }
+
+
 .reference-panel [hidden] { display:none!important; }
 .reference-panel .order-banner {
   flex-shrink:0; background:linear-gradient(#27962c,#228d24);
@@ -168,4 +170,4 @@
   .reference-panel .order-menu-link{min-height:20px}
 }
 
-
+.reference-panel .menu-preview.order-error{background:#ffe8e4;color:#a00000;border:2px solid #c91d16;font-size:clamp(16px,4vw,20px);font-weight:900;line-height:1.2}

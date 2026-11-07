@@ -112,15 +112,17 @@ test('正解した枠だけを補充し、他の2件の会話は維持する。�
   assert.equal(app.customers().length, 3);
   assert.equal(app.customers()[0], before[0]);
   assert.equal(app.customers()[2], before[2]);
-  assert.notEqual(app.customers()[1], before[1]);
-  assert.equal(app.speech(1), '');
-  const next = [...app.customers()];
+  assert.equal(app.customers()[1], before[1]);
+  assert.equal(app.customers()[1].classes.has('order-correct'), true);
   app.type(codes[1]); app.submit();
   assert.equal(app.get('#score').textContent, '1');
-  assert.match(app.get('#feedback').textContent, /違う/);
-  next.forEach((card, index) => assert.equal(app.customers()[index], card));
+  assert.match(app.get('#menu-preview').textContent, /違う/);
+  assert.equal(app.get('#menu-preview').classes.has('order-error'), true);
+  app.tick(700);
+  assert.notEqual(app.customers()[1], before[1]);
+  assert.equal(app.speech(1), '');
   assert.equal(app.customers()[1].hidden, true);
-  app.tick(4399);
+  app.tick(3699);
   assert.equal(app.speech(1), '');
   app.tick(1);
   assert.equal([...app.speech(1)].length, 1);
@@ -220,9 +222,11 @@ test('注文外でも品名は表示し、削除・4桁制限・PC入力・誤�
   assert.equal(app.get('#menu-preview').hidden, true);
   app.key('clear'); app.type('1408'); app.submit();
   assert.equal(app.get('#score').textContent, '0');
-  assert.match(app.get('#feedback').textContent, /違う/);
+  assert.match(app.get('#menu-preview').textContent, /違う/);
+  assert.equal(app.get('#menu-preview').hidden, false);
   const press = (key) => app.document.fire('keydown', { key, target: app.document.body, preventDefault() {} });
-  [...'3901'].forEach(press); press('Enter');
+  press('3'); assert.equal(app.get('#menu-preview').hidden, true);
+  [...'901'].forEach(press); press('Enter');
   assert.equal(app.get('#score').textContent, '1');
   app.tick(60000);
   assert.equal(app.get('#result-accuracy').textContent, '50%');
@@ -233,10 +237,12 @@ test('連続で注文を済ませても補充は4秒ずつずれ、開始待ち�
   app.allCodes().forEach((code) => { app.type(code); app.submit(); });
   assert.equal(app.get('#score').textContent, '3');
   assert.equal(app.customers().length, 3);
-  app.customers().forEach((card) => assert.equal(card.hidden, true));
+  app.customers().forEach((card) => assert.equal(card.classes.has('order-correct'), true));
   app.type('2328'); app.submit();
   assert.equal(app.get('#score').textContent, '3');
-  app.tick(3999);
+  app.tick(700);
+  app.customers().forEach((card) => assert.equal(card.hidden, true));
+  app.tick(3299);
   app.customers().forEach((card) => assert.equal(card.hidden, true));
   app.tick(1);
   assert.equal(app.customers()[0].hidden, false);
@@ -299,6 +305,3 @@ test('料理名だけを太字にし、文字送り中も料理名が1文字ず�
   assert.equal(suffix.textContent, 'が');
   assert.equal(introduction.textContent, `私は${name}が`);
 });
-
-
-

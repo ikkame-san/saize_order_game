@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#174c3b">
+  <meta name="description" content="同じ卓の友達の声を聞いて、4桁の番号をポチポチ。スマホとPCで遊べるサイゼ注文ゲーム。">
+  <title>サイゼ注文ゲーム | きょうは、あなたが注文係。</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='20' fill='%23174c3b'/%3E%3Ctext x='40' y='55' text-anchor='middle' font-size='48' fill='%23fff9e9'%3Eサ%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="order-pad.css">
+  <script src="game.js" defer></script>
+</head>
+<body class="is-ready">
+  <svg class="icon-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M9 5h12v14H9l-7-7 7-7Z"/><path d="m12 9 6 6m0-6-6 6"/></symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9h4l5-5v16l-5-5H4V9Zm13-2c4 3 4 7 0 10m-1-7c1 1 1 3 0 4"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 5m0 2v1"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M5 3h14v19l-3-2-4 2-4-2-3 2V3Zm4 5h6m-6 4h6m-6 4h4"/></symbol>
+  </defs></svg>
+
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="サイゼ注文ゲーム ホーム"><span class="brand-mark">サ<span>✳</span></span><span>サイゼ注文ゲーム</span></a>
+    <nav aria-label="ゲーム設定"><button id="sound-toggle" class="icon-button sound-off" aria-label="効果音をオンにする" aria-pressed="false"><svg><use href="#i-sound"/></svg><span class="sound-slash"></span></button><button id="help-button" class="help-button"><svg><use href="#i-help"/></svg><span>あそびかた</span></button></nav>
+  </header>
+
+  <main class="game-layout">
+    <section class="restaurant" aria-label="友達の注文">
+      <div id="start-screen" class="start-screen">
+        <button id="start-button" class="start-button" autofocus>ゲームをはじめる</button>
+      </div>
+
+      <div class="scoreboard" aria-label="ゲームの進み具合"><div><span class="stat-label">残り</span><strong id="time-left" role="timer" aria-label="残り60秒">1:00</strong></div><div class="stat-divider"></div><div><span class="stat-label">注文</span><strong><span id="score">0</span><small>品</small></strong></div><div class="stat-divider"></div><div><span class="stat-label">ベスト</span><strong id="best">—</strong></div></div>
+<p id="rush-status" class="rush-status sr-only" role="status" aria-live="polite" hidden></p>
+      <div class="customer-area" role="region" aria-label="みんなの注文。スクロールして確認できます" tabindex="0">
+        <div id="customer-avatar" class="mobile-avatar" aria-hidden="true">☺</div>
+        <div class="speech-bubble"><p id="speech" aria-hidden="true">注文よろしく！</p><span id="speech-accessible" class="sr-only" role="status" aria-live="polite">注文よろしく！</span></div>
+      </div>
+
+      <div class="restaurant-art" aria-hidden="true">
+        <svg viewBox="0 0 850 430" xmlns="http://www.w3.org/2000/svg">
+          <defs><pattern id="checks" width="38" height="38" patternUnits="userSpaceOnUse"><rect width="38" height="38" fill="#fff8e9"/><path d="M0 0h19v38H0zM0 0h38v19H0z" fill="#bc4d43" opacity=".2"/></pattern><pattern id="awning" width="54" height="70" patternUnits="userSpaceOnUse"><rect width="54" height="70" fill="#f8efda"/><rect width="27" height="70" fill="#37634c"/></pattern></defs>
+          <path d="M72 254V76a93 93 0 0 1 186 0v178" fill="#e3e9d4" stroke="#b7bfa4" stroke-width="3"/>
+          <path d="M91 250V81a74 74 0 0 1 148 0v169" fill="#d3dfd1"/><circle cx="190" cy="77" r="26" fill="#f8e9a9"/><path d="m92 215 52-69 34 39 35-65 26 30v100H91" fill="#a9bd9f"/><path d="M165 8v246M75 124h181" stroke="#f9f0df" stroke-width="9"/>
+          <path d="M48 20h234l-16 56H62z" fill="url(#awning)"/><path d="M62 76q13 20 26 0 13 20 26 0 13 20 26 0 13 20 26 0 13 20 26 0 13 20 26 0 13 20 26 0 13 20 22 0" fill="#37634c"/>
+          <path d="M625 0v64" stroke="#bda584" stroke-width="3"/><path d="m598 82 13-28h29l14 28z" fill="#b18143"/><ellipse cx="626" cy="84" rx="29" ry="6" fill="#e8c98b"/>
+          <rect x="348" y="26" width="118" height="90" rx="2" fill="#c6a77f" transform="rotate(-5 407 71)"/><rect x="356" y="34" width="102" height="74" fill="#f8edd6" transform="rotate(-5 407 71)"/><path d="m380 82 20-31 26 8 17 24" stroke="#bd6b4b" stroke-width="4" fill="none"/><circle cx="427" cy="49" r="8" fill="#dbb257"/>
+          <rect x="73" y="275" width="574" height="103" rx="32" fill="#26503f"/><path d="M92 299h535" stroke="#47725b" stroke-width="2"/>
+          <g id="guest-left"><path d="M195 283q-24-96 63-96 77 0 64 96" fill="#d88a5f"/><path d="M221 266v-30h54v33" fill="#e5b18a"/><ellipse cx="249" cy="183" rx="51" ry="62" fill="#edbd98"/><path d="M199 187q-23-85 43-89 72-6 66 93l-20-29-15-39q-14 35-60 36l-3 41z" fill="#4c352c"/><path d="M198 170q-20 41 0 89l20-12-11-58m96-22q24 62 3 92l-20-11 12-52" fill="#4c352c"/><path d="M224 184v5m45-5v5" stroke="#4c352c" stroke-linecap="round" stroke-width="5"/><path d="M238 207q10 9 20-1" fill="none" stroke="#9c5547" stroke-width="3" stroke-linecap="round"/><ellipse cx="220" cy="202" rx="9" ry="5" fill="#db8b7c" opacity=".5"/><ellipse cx="277" cy="202" rx="9" ry="5" fill="#db8b7c" opacity=".5"/><path d="m221 254 26 23 28-23" fill="none" stroke="#f4cc9b" stroke-width="4"/></g>
+          <g id="guest-right"><path d="M423 285q-5-89 63-89 73 0 76 89" fill="#7c9570"/><path d="M464 261v-27h43v27" fill="#dca87e"/><ellipse cx="486" cy="182" rx="48" ry="60" fill="#e9b88d"/><path d="M439 177q-23-64 16-75 14-25 48-8 45-5 34 73l-19-8-5-28q-21 24-66 15v31" fill="#343b31"/><path d="M463 182v5m43-5v5" stroke="#343b31" stroke-linecap="round" stroke-width="5"/><path d="M476 205q10 10 20 0" fill="none" stroke="#985840" stroke-width="3" stroke-linecap="round"/><path d="m459 251 25 24 28-24" fill="none" stroke="#c8d3ac" stroke-width="4"/></g>
+          <path d="M88 289h570l50 111H43z" fill="url(#checks)" stroke="#e0cab0" stroke-width="2"/><path d="M43 400h665v24H43z" fill="#b66f50"/><path d="m92 424-7 33m569-33 10 33" stroke="#77523b" stroke-width="10"/>
+          <ellipse cx="257" cy="344" rx="65" ry="21" fill="#fefdf8" stroke="#d0cbbb" stroke-width="3"/><ellipse cx="257" cy="342" rx="47" ry="13" fill="#e9b65e"/><path d="m224 341 21-5 14 9 20-7 13 7" stroke="#b36a39" stroke-width="5" fill="none"/><circle cx="239" cy="338" r="3" fill="#6c8c45"/><circle cx="273" cy="343" r="3" fill="#6c8c45"/>
+          <ellipse cx="490" cy="344" rx="57" ry="19" fill="#fffdf5" stroke="#d0cbbb" stroke-width="3"/><path d="m453 343 12-18 18 10 17-13 28 20" fill="#91a45d"/><circle cx="471" cy="338" r="7" fill="#ce6850"/><circle cx="506" cy="337" r="6" fill="#d9785d"/><path d="M345 298h24l-3 37h-18z" fill="#d7e3da" stroke="#99ada0" stroke-width="2"/><path d="M350 311h13" stroke="#fff" stroke-width="2"/>
+          <path d="M731 347q-41-71-3-130-9 79 15 112-6-93 31-132 6 88-23 137 29-54 60-53-12 55-57 69" fill="#52734e"/><path d="m716 344 8 66h49l8-66z" fill="#b87d59"/><path d="M713 345h71v11h-71z" fill="#ca9368"/>
+        </svg>
+      </div>
+      
+    </section>
+
+    <section class="order-panel reference-panel" aria-label="スマホ注文画面">
+      <div class="order-banner">番号を入力</div>
+      <div class="order-body">
+        <div class="order-preview">
+          <div class="preview-content">
+            <div id="order-emblem" class="order-emblem">
+              <svg viewBox="0 0 320 200" role="img" aria-label="Saizeriya サイゼリヤ風ロゴ">
+                <defs><clipPath id="emblem-clip"><ellipse cx="160" cy="100" rx="146" ry="87"/></clipPath></defs>
+                <ellipse cx="160" cy="100" rx="154" ry="94" fill="white" stroke="#278e30" stroke-width="3"/>
+                <ellipse cx="160" cy="100" rx="147" ry="88" fill="white" stroke="#278e30" stroke-width="1.5"/>
+                <path d="M5 158h310v43H5z" clip-path="url(#emblem-clip)" fill="#278e30"/>
+                <g fill="#278e30"><path d="m149 25 11-6 11 6-3 6h-16z"/><circle cx="160" cy="48" r="16" fill="none" stroke="#278e30" stroke-width="2"/><path d="M144 32q-13 20 1 33l-8-8-4-16 7 3-2-11zm32 0q13 20-1 33l8-8 4-16-7 3 2-11zM151 69h18v4h-18z"/></g>
+                <text x="160" y="57" font-size="22" font-family="Georgia,serif" font-weight="bold" text-anchor="middle" fill="#278e30">S</text>
+                <text x="160" y="124" font-size="58" font-family="Georgia,serif" font-style="italic" font-weight="bold" text-anchor="middle" letter-spacing="-3" fill="#df0018">Saizeriya</text>
+                <path d="M40 132h242" stroke="#df0018" stroke-width="3"/>
+                <text x="167" y="147" font-size="11" font-family="Arial,sans-serif" font-weight="bold" text-anchor="middle" letter-spacing="1.4" fill="#df0018">RISTORANTE E CAFFÈ</text>
+              </svg>
+            </div>
+            <p id="menu-preview" class="menu-preview" role="status" aria-live="polite" hidden></p>
+          </div>
+          <button id="submit-button" class="submit-button" hidden disabled><span>次へ進む</span></button>
+        </div>
+        <div id="code-display" class="code-display" role="group" aria-label="注文番号 未入力" tabindex="0"><span id="number-value"></span></div>
+        <div class="keypad" aria-label="番号入力テンキー">
+          <button data-key="1" disabled>1</button><button data-key="2" disabled>2</button><button data-key="3" disabled>3</button>
+          <button data-key="4" disabled>4</button><button data-key="5" disabled>5</button><button data-key="6" disabled>6</button>
+          <button data-key="7" disabled>7</button><button data-key="8" disabled>8</button><button data-key="9" disabled>9</button>
+          <span class="keypad-spacer" aria-hidden="true"></span><button data-key="0" disabled>0</button><button data-key="back" class="delete-key" disabled aria-label="1文字削除">削除</button>
+        </div>
+        <div class="entry-status">
+          <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+          <button data-key="clear" class="clear-link" disabled aria-label="入力した番号をすべて消す">全消去</button>
+        </div>
+      </div>
+      <div class="order-menu-link"><span>非公式ゲーム</span><button id="menu-button">メニュー</button></div>
+    </section>
+  </main>
+  <footer class="site-footer"><span>非公式ゲーム</span></footer>
+
+  <dialog id="help-dialog" aria-labelledby="help-title"><button class="close-dialog" aria-label="閉じる">×</button><h2 id="help-title">あそびかた</h2><ol class="how-to"><li><span>01</span><div><b>友達の注文を聞く</b><p>最大3件。開始は4秒間隔、文字は0.4秒ごと。</p></div></li><li><span>02</span><div><b>4桁入力して「次へ進む」</b><p>順番は自由。PCは数字キーとEnter。</p></div></li><li><span>03</span><div><b>60秒で何品？</b><p>デザートの「すぐに／あとで」に注意。メニュー中も時間は進みます。</p></div></li></ol><p class="dialog-note">非公式ゲームです。</p><button class="dialog-primary close-dialog-action">OK</button></dialog>
+  <dialog id="menu-dialog" aria-labelledby="menu-title"><button class="close-dialog" aria-label="閉じる">×</button><h2 id="menu-title">メニュー</h2><div id="menu-list" class="menu-list"></div><p class="dialog-note">番号参考：<a href="https://www.saizeriya.co.jp/menu-popular/" target="_blank" rel="noreferrer">公式サイト</a>（2026年11月1日確認）。</p></dialog>
+  <dialog id="result-dialog" class="result-dialog" aria-labelledby="result-title"><div class="result-icon">✓</div><h2 id="result-title">タイムアップ！</h2><p>おつかれさま！</p><div class="result-stats"><div><b id="result-score">0</b><span>注文数</span></div><div><b id="result-accuracy">100%</b><span>正確さ</span></div><div><b id="result-combo">5</b><span>最大コンボ</span></div></div><p id="best-message" class="best-message"></p><button id="replay-button" class="dialog-primary">もう一度</button><button id="result-close" class="text-button">戻る</button></dialog>
+</body>
+</html>
+
+
+
+
+
+
+
+

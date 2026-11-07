@@ -116,7 +116,11 @@
     const candidates = ORDER_MENUS.filter((menu) => !activeCodes.has(menu.code) && menu.code !== excludeCode);
     const menu = candidates[Math.floor(Math.random() * candidates.length)];
     const person = state.speakerSequence++ % 2 === 0 ? '私' : '僕';
-    const message = `${person}は${menu.name}が食べたい！${menu.timing ? `${menu.timing}持ってきて！` : ''}注文番号は${menu.code}`;
+    const introduction = `${person}は${menu.name}が食べたい！${menu.timing ? `${menu.timing}持ってきて！` : ''}`;
+    const orderLabel = '注文番号は';
+    const introductionLength = [...introduction].length;
+    const labelLength = [...orderLabel].length;
+    const characters = [...introduction, ...orderLabel, ...menu.code];
     const now = performance.now();
     const startsAt = Math.max(now + startDelay, state.nextRequestStartAt);
     state.nextRequestStartAt = startsAt + ORDER_START_INTERVAL;
@@ -125,14 +129,23 @@
     card.hidden = startsAt > now;
     card.setAttribute('aria-label', '友達の注文');
     const text = document.createElement('p');
-    text.className = 'typing';
     text.setAttribute('aria-hidden', 'true');
+    const introductionText = document.createElement('span');
+    introductionText.className = 'typing';
+    const orderLine = document.createElement('span');
+    orderLine.className = 'order-number-line';
+    orderLine.hidden = true;
+    const labelText = document.createElement('span');
+    const orderNumber = document.createElement('strong');
+    orderNumber.className = 'order-number';
+    orderLine.append(labelText, orderNumber);
+    text.append(introductionText, orderLine);
     const accessible = document.createElement('span');
     accessible.className = 'sr-only';
     accessible.setAttribute('role', 'status');
     accessible.setAttribute('aria-live', 'polite');
     card.append(text, accessible);
-    return { menu, characters: [...message], index: 0, startsAt, nextCharacterAt: startsAt + CHARACTER_DELAY, card, text, accessible };
+    return { menu, characters, introductionLength, labelLength, index: 0, startsAt, nextCharacterAt: startsAt + CHARACTER_DELAY, card, text, introductionText, orderLine, labelText, orderNumber, accessible };
   }
   function renderRequests() {
     $('.customer-area').replaceChildren(...state.customers.map((customer) => customer.card));
@@ -158,10 +171,18 @@
         if (customer.index >= customer.characters.length || currentTime < customer.nextCharacterAt) return;
         customer.index += 1;
         customer.nextCharacterAt = currentTime + CHARACTER_DELAY;
-        customer.text.textContent = customer.characters.slice(0, customer.index).join('');
+        const visible = customer.characters.slice(0, customer.index);
+        const orderPart = visible.slice(customer.introductionLength);
+        customer.introductionText.textContent = visible.slice(0, customer.introductionLength).join('');
+        customer.orderLine.hidden = orderPart.length === 0;
+        customer.labelText.textContent = orderPart.slice(0, customer.labelLength).join('');
+        customer.orderNumber.textContent = orderPart.slice(customer.labelLength).join('');
+        customer.introductionText.classList.toggle('typing', orderPart.length === 0);
+        customer.orderNumber.classList.toggle('typing', orderPart.length > 0);
         if (customer.index === customer.characters.length) {
-          customer.text.classList.remove('typing');
-          customer.accessible.textContent = customer.characters.join('');
+          customer.introductionText.classList.remove('typing');
+          customer.orderNumber.classList.remove('typing');
+          customer.accessible.textContent = `${customer.characters.slice(0, customer.introductionLength).join('')}\n${customer.characters.slice(customer.introductionLength).join('')}`;
         }
       });
       scheduleTick();
@@ -231,7 +252,10 @@
     state.phase = 'finished';
     state.code = '';
     stopTicker();
-    state.customers.forEach((customer) => customer.text.classList.remove('typing'));
+    state.customers.forEach((customer) => {
+      customer.introductionText.classList.remove('typing');
+      customer.orderNumber.classList.remove('typing');
+    });
     const count = state.orders.length;
     const attempts = count + state.mistakes;
     $('#result-score').textContent = `${count}品`;

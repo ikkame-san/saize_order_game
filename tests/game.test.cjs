@@ -10,7 +10,9 @@ function setup(random = Math.random, initialStorage = {}) {
   let timerID = 0;
   let now = 0;
   class Element {
-    constructor() { this.textContent = ''; this.disabled = false; this.open = false; this.events = {}; this.attrs = {}; this.children = []; this.dataset = {}; this.classes = new Set(); this.classList = { add: (v) => this.classes.add(v), remove: (v) => this.classes.delete(v), toggle: (v, on) => on ? this.classes.add(v) : this.classes.delete(v) }; }
+    constructor() { this._textContent = ''; this.disabled = false; this.open = false; this.events = {}; this.attrs = {}; this.children = []; this.dataset = {}; this.classes = new Set(); this.classList = { add: (v) => this.classes.add(v), remove: (v) => this.classes.delete(v), toggle: (v, on) => on ? this.classes.add(v) : this.classes.delete(v) }; }
+    get textContent() { return this._textContent + this.children.map((child) => child.textContent).join(''); }
+    set textContent(value) { this._textContent = String(value); this.children = []; }
     addEventListener(name, handler) { (this.events[name] ??= []).push(handler); }
     fire(name, event = {}) { (this.events[name] || []).forEach((handler) => handler(event)); }
     click() { if (!this.disabled) this.fire('click'); }
@@ -248,6 +250,33 @@ test('連続で注文を済ませても補充は4秒ずつずれ、開始待ち�
   app.tick(400); assert.equal([...app.speech(1)].length, 1);
   app.tick(3600); assert.equal(app.customers()[2].hidden, false);
   app.tick(400); assert.equal([...app.speech(2)].length, 1);
+});
+
+test('注文番号は別の行に移り、4桁は強調しながら400msずつ表示される', () => {
+  const app = setup(() => 0.999999); app.start();
+  const intro = '私はティラミス クラシコが食べたい！あとで持ってきて！';
+  const text = app.customers()[0].children[0];
+  const body = text.children[0];
+  const line = text.children[1];
+  const label = line.children[0];
+  const number = line.children[1];
+  app.tick([...intro].length * 400);
+  assert.equal(body.textContent, intro);
+  assert.equal(line.hidden, true);
+  app.tick(399); assert.equal(line.hidden, true);
+  app.tick(1);
+  assert.equal(line.hidden, false);
+  assert.equal(label.textContent, '注');
+  assert.equal(number.textContent, '');
+  app.tick(1600);
+  assert.equal(label.textContent, '注文番号は');
+  assert.equal(number.textContent, '');
+  app.tick(400); assert.equal(number.textContent, '3');
+  app.tick(1200);
+  assert.equal(number.textContent, '3901');
+  assert.equal(number.className, 'order-number');
+  assert.equal(number.classes.has('typing'), false);
+  assert.equal(app.customers()[0].children[1].textContent, `${intro}\n注文番号は3901`);
 });
 
 

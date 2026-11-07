@@ -1,0 +1,136 @@
+@charset "UTF-8";
+
+/* Reference: the photographed mobile order pad. Keep game chrome independent. */
+.reference-panel {
+  display:flex; flex-direction:column; width:360px;
+  height:min(700px,calc(100dvh - 160px)); min-height:590px;
+  border:1px solid #d1d1d1; border-radius:3px;
+  background:#fff; color:#222; box-shadow:0 12px 36px #173a2820;
+  font-family:var(--ui-font);
+}
+.reference-panel [hidden] { display:none!important; }
+.reference-panel .order-banner {
+  flex-shrink:0; background:linear-gradient(#27962c,#228d24);
+  padding:9px 3px; text-align:center; color:#fff;
+  font-size:16px; font-weight:800; line-height:1.5; white-space:nowrap;
+}
+.reference-panel .order-body {
+  flex:1; min-height:0; display:flex; flex-direction:column;
+  gap:10px; width:100%; max-width:none; margin:0; padding:12px 9px 5px;
+}
+.reference-panel .order-preview {
+  flex:1; min-height:115px; display:flex; flex-direction:column; gap:9px;
+}
+.reference-panel .preview-content {
+  display:flex; justify-content:center; align-items:center; flex:1; min-height:0;
+}
+.reference-panel .order-emblem {
+  display:flex; align-items:center; justify-content:center;
+  width:55%; height:100%; max-height:112px;
+}
+.reference-panel .order-emblem svg { display:block; width:100%; height:100%; }
+.reference-panel .menu-preview {
+  width:100%; padding:6px 8px; margin:0; background:#dfffdc;
+  font-size:24px; line-height:1.25; color:#28852b; font-weight:700;
+  overflow-wrap:anywhere;
+}
+.reference-panel .menu-preview.unknown-menu { color:#b00000; font-size:17px; background:#fff0ec; }
+.reference-panel .submit-button {
+  align-self:flex-end; flex-shrink:0; display:flex; justify-content:center; align-items:center;
+  width:48%; height:49px; min-height:0; margin:0; padding:4px;
+  border:2px solid #c90000; border-radius:11px; color:#fff;
+  background:linear-gradient(#ffa7a7 0%,#e73535 24%,#d80000 53%,#e00000 100%);
+  box-shadow:inset 0 1px 2px #ffffffbb,0 1px 1px #90000055;
+  font-family:inherit; font-size:23px; font-weight:900; line-height:1.2; letter-spacing:0;
+}
+.reference-panel .submit-button:hover:enabled { background:linear-gradient(#ffb5b5,#f33b3b 24%,#e90000 53%,#d00000); }
+.reference-panel .submit-button:active:enabled { transform:translateY(1px); box-shadow:inset 0 1px 4px #93000080; }
+.reference-panel .submit-button:disabled { color:#f8e6e6; border-color:#b98686; background:linear-gradient(#ebcaca,#c49b9b); box-shadow:none; }
+.reference-panel .submit-button span { overflow-wrap:anywhere; }
+.reference-panel:not(:has(.keypad button:enabled)) .submit-button { font-size:17px; width:64%; }
+.reference-panel .code-display {
+  flex-shrink:0; display:flex; align-items:center; justify-content:center;
+  height:59px; gap:0; border:3px solid #278e2c; border-radius:2px;
+  background:#fff; color:#222; font:bold 48px/1 var(--ui-font);
+  font-variant-numeric:tabular-nums; letter-spacing:0;
+}
+.reference-panel .keypad {
+  flex:1.7; min-height:192px; display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(4,minmax(0,1fr));
+  gap:5px;
+}
+.reference-panel .keypad button {
+  height:100%; min-height:0; padding:0; border:2px solid #747474; border-radius:12px;
+  background:linear-gradient(#fff 0%,#fff 24%,#f8f8f8 55%,#e2e2e2 100%);
+  color:#009d42; font:700 43px/1 var(--ui-font);
+  box-shadow:inset 0 1px 1px #fff,0 1px 0 #cccccc;
+  touch-action:manipulation; transition:filter .1s,transform .1s;
+}
+.reference-panel .keypad button:hover:enabled { background:linear-gradient(#fff,#f4fff1 45%,#dcebd7); }
+.reference-panel .keypad button:active:enabled { background:linear-gradient(#cfe4c9,#f7fff2); transform:translateY(1px); box-shadow:inset 0 1px 3px #728d6b66; }
+.reference-panel .keypad button:disabled { color:#009d42; opacity:.65; background:linear-gradient(#fff,#f5f5f5 55%,#e2e2e2); }
+.reference-panel .keypad .delete-key {
+  background:linear-gradient(#9affc2 0%,#16da6b 22%,#00a443 56%,#00ae47 100%);
+  border:2px solid #269a4e; color:white; font-size:29px;
+  box-shadow:inset 0 1px 1px #ffffff88;
+}
+.reference-panel .keypad .delete-key:hover:enabled { background:linear-gradient(#baffd0,#27e178 22%,#00b74a 56%,#00a743); }
+.reference-panel .keypad .delete-key:active:enabled { background:linear-gradient(#008d39,#20d56b); }
+.reference-panel .keypad .delete-key:disabled { color:#fff; background:linear-gradient(#9affc2,#16da6b 22%,#00a443 56%,#00ae47); }
+.reference-panel .entry-status { display:flex; align-items:center; gap:5px; height:23px; flex-shrink:0; }
+.reference-panel .feedback {
+  flex:1; min-width:0; min-height:0; margin:0; font-size:9px; line-height:1.6;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:left; color:#6d7c68;
+}
+.reference-panel .feedback.error { color:#b00000; }
+.reference-panel .feedback.success { color:#26832b; }
+.reference-panel .clear-link { flex-shrink:0; border:0; background:transparent; padding:3px; color:#777; font-size:9px; text-decoration:underline; }
+.reference-panel .clear-link:disabled { opacity:.5; }
+.reference-panel .order-menu-link { display:flex; flex-shrink:0; align-items:center; justify-content:space-between; gap:8px; padding:0 12px 5px; color:#a2a2a2; font-size:8px; }
+.reference-panel .order-menu-link button { border:0; background:transparent; color:#39843d; padding:2px 0; font-size:10px; }
+@media(min-width:761px) and (max-width:1100px){.reference-panel{width:335px}.reference-panel .order-banner{font-size:15px}}
+@media(max-width:760px){
+  .reference-panel {
+    position:fixed; left:0; right:0; bottom:0; width:100%; height:70dvh; min-height:0;
+    border:0; border-radius:0; padding-bottom:env(safe-area-inset-bottom,0px); background:#fff;
+  }
+  .reference-panel .order-banner { padding:7px 3px; font-size:clamp(12px,4.2vw,17px); }
+  .reference-panel .order-body { gap:8px; padding:8px 8px 3px; background:white; }
+  .reference-panel .order-preview { min-height:92px; gap:7px; }
+  .reference-panel .order-emblem { max-height:112px; }
+  .reference-panel .menu-preview { font-size:clamp(18px,5.8vw,26px); padding:5px 7px; }
+  .reference-panel .menu-preview.unknown-menu { font-size:15px; }
+  .reference-panel .submit-button { height:clamp(34px,5.9dvh,50px); min-height:0; font-size:clamp(20px,6vw,27px); width:46%; }
+  .reference-panel:not(:has(.keypad button:enabled)) .submit-button { font-size:16px; width:61%; }
+  .reference-panel .code-display { height:clamp(40px,7dvh,60px); font-size:clamp(34px,6.2dvh,52px); }
+  .reference-panel .keypad { min-height:148px; gap:5px; }
+  .reference-panel .keypad button { font-size:clamp(30px,5.9dvh,48px); border-radius:11px; }
+  .reference-panel .keypad .delete-key { font-size:clamp(24px,4.5dvh,35px); }
+  .reference-panel .entry-status { height:18px; }
+  .reference-panel .order-menu-link { padding:1px 10px 4px; background:white; font-size:7px; }
+  .reference-panel .order-menu-link button { font-size:9px; }
+}
+
+@media(max-width:760px) and (max-height:690px){
+  .reference-panel .order-banner { padding:4px 2px; font-size:13px; }
+  .reference-panel .order-body { gap:5px; padding:6px 7px 2px; }
+  .reference-panel .order-preview { min-height:65px; gap:4px; }
+  .reference-panel .keypad { min-height:126px; gap:4px; }
+  .reference-panel .keypad button { border-radius:9px; font-size:31px; }
+  .reference-panel .keypad .delete-key { font-size:24px; }
+  .reference-panel .submit-button { height:32px; font-size:20px; }
+  .reference-panel .menu-preview { font-size:18px; padding:3px 5px; }
+  .reference-panel .entry-status { height:15px; }
+  .reference-panel .feedback,.reference-panel .clear-link { font-size:8px; }
+  .reference-panel .order-menu-link { padding-bottom:2px; }
+}
+
+/* Use the same readable Gothic font for Japanese text and order numbers. */
+.reference-panel,.reference-panel button{font-family:var(--ui-font)}
+.reference-panel .entry-status{height:24px}
+.reference-panel .feedback{font-size:12px}
+.reference-panel .clear-link{font-size:12px}
+.reference-panel .order-menu-link button{font-size:12px}
+.reference-panel .order-menu-link{font-size:9px}
+
+

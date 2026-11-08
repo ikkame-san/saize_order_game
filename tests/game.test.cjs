@@ -144,7 +144,7 @@ test('5品を超えて注文でき、60秒で終了。ベストは注文数を�
   }
   assert.equal(app.get('#score').textContent, '8');
   assert.equal(app.get('#result-dialog').open, false);
-  app.tick(23999);
+  app.tick(27599);
   assert.equal(app.get('#time-left').textContent, '0:01');
   assert.equal(app.get('#result-dialog').open, false);
   app.tick(1);
@@ -167,6 +167,30 @@ test('ブラウザのタイマーが遅延しても、期限ちょうどの送�
   assert.equal(app.get('#result-dialog').open, true);
   assert.equal(app.get('#result-score').textContent, '0品');
   assert.equal(app.get('#result-accuracy').textContent, '0%');
+});
+
+test('連続正解で0.1秒ずつ加算が増え、10コンボ目以降は1秒で頭打ちになる', () => {
+  const app = setup(() => 0.999999); app.start();
+  const codes = ['3901', '1405', '2301', '2203', '1401', '1202', '2101', '3914', '3915', '3913', '3907'];
+  codes.forEach((code, index) => {
+    app.tick(index === 0 ? 0 : index === 1 ? 12000 : 1500);
+    app.type(code); app.submit();
+    assert.equal(app.get('#score').textContent, String(index + 1));
+    assert.equal(app.get('#combo-bonus').textContent, `${index + 1}コンボ +${(Math.min(index + 1, 10) / 10).toFixed(1)}秒`);
+  });
+  app.jump(66499 - (12000 + 9 * 1500));
+  app.tick(0); assert.equal(app.get('#result-dialog').open, false);
+  app.tick(1); assert.equal(app.get('#result-dialog').open, true);
+});
+
+test('間違えるとコンボが切れ、次の正解は0.1秒に戻る', () => {
+  const app = setup(() => 0.999999); app.start();
+  app.type('3901'); app.submit();
+  assert.equal(app.get('#combo-bonus').textContent, '1コンボ +0.1秒');
+  app.type('0000'); app.submit();
+  app.tick(1500); app.type('1405'); app.submit();
+  assert.equal(app.get('#combo-bonus').textContent, '1コンボ +0.1秒');
+  app.tick(58700); assert.equal(app.get('#result-dialog').open, true);
 });
 
 test('メニュー・背景タブでは文字送りだけ停止し、60秒の時計は止めない', () => {
@@ -197,7 +221,7 @@ test('メニュー表示中の時間切れは結果表示を待ち、閉じた�
 
 test('再プレイは新しい60秒・3件・注文数ゼロから始まりベストを維持する', () => {
   const app = setup(() => 0.999999); app.start();
-  app.type('3901'); app.submit(); app.tick(60000);
+  app.type('3901'); app.submit(); app.tick(60100);
   app.tick(1000);
   app.get('#replay-button').click();
   assert.equal(app.get('#result-dialog').open, false);
@@ -214,7 +238,7 @@ test('結果に注文済みと残った吹き出しを番号付きで分け、�
   const codes = app.allCodes();
   app.jump(35999);
   app.type(codes[0]); app.submit();
-  app.tick(1);
+  app.tick(101);
   assert.equal(app.get('#result-dialog').open, true);
   assert.match(app.get('#result-ordered').textContent, new RegExp(codes[0]));
   assert.equal(app.get('#result-ordered').children.length, 1);
@@ -270,7 +294,7 @@ test('注文外でも品名は表示し、削除・4桁制限・PC入力・誤�
   press('3'); assert.equal(app.get('#menu-preview').hidden, true);
   [...'901'].forEach(press); press('Enter');
   assert.equal(app.get('#score').textContent, '1');
-  app.tick(60000);
+  app.tick(60100);
   assert.equal(app.get('#result-accuracy').textContent, '50%');
 });
 

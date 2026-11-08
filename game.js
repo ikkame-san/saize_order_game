@@ -170,7 +170,7 @@
   const state = {
     phase: 'ready', code: '', errorMessage: '', combo: 0, maxCombo: 0, mistakes: 0,
     orders: [], customers: [], requestCounts: {}, speakerSequence: 0, deadline: 0,
-    tickTimer: null, pendingResult: false, resultReady: false, sound: false, audio: null, best: 0,
+    tickTimer: null, bonusTimer: null, pendingResult: false, resultReady: false, sound: false, audio: null, best: 0,
   };
   try { state.best = Number(localStorage.getItem(BEST_KEY)) || 0; } catch { /* Storage is optional. */ }
   $('#best').textContent = state.best || '—';
@@ -333,6 +333,8 @@
   }
   function startGame() {
     stopTicker();
+    clearTimeout(state.bonusTimer);
+    $('#combo-bonus').hidden = true;
     const now = performance.now();
     Object.assign(state, { phase: 'playing', code: '', combo: 0, maxCombo: 0, mistakes: 0, orders: [], customers: [], requestCounts: {}, speakerSequence: 0, deadline: now + GAME_DURATION, pendingResult: false, resultReady: false });
     $('#score').textContent = '0';
@@ -379,6 +381,17 @@
       state.orders.push(customer.menu);
       state.combo += 1;
       state.maxCombo = Math.max(state.maxCombo, state.combo);
+      const bonusMilliseconds = Math.min(state.combo, 10) * 100;
+      state.deadline += bonusMilliseconds;
+      renderTime();
+      const bonus = $('#combo-bonus');
+      bonus.textContent = `${state.combo}コンボ +${(bonusMilliseconds / 1000).toFixed(1)}秒`;
+      bonus.hidden = false;
+      bonus.classList.remove('bonus-pop');
+      void bonus.offsetWidth;
+      bonus.classList.add('bonus-pop');
+      clearTimeout(state.bonusTimer);
+      state.bonusTimer = setTimeout(() => { bonus.hidden = true; }, 1500);
       // Reserve the next request immediately, while the success effect plays.
       customer.replacement = createRequest(customer.menu.code);
       customer.served = true;
@@ -398,6 +411,8 @@
     state.phase = 'finished';
     state.code = '';
     stopTicker();
+    clearTimeout(state.bonusTimer);
+    $('#combo-bonus').hidden = true;
     state.customers.forEach((customer) => {
       customer.introductionText.classList.remove('typing');
       customer.orderNumber.classList.remove('typing');

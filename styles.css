@@ -160,3 +160,10 @@ dialog{border:1px solid #d9ddce;background:#fffdf7;color:var(--ink);border-radiu
 #result-actions .dialog-primary{margin-top:0}
 #result-actions .text-button{margin-top:4px}
 @media(max-height:600px){.result-dialog[open]{padding-top:12px;padding-bottom:12px}.result-dialog .result-icon{width:34px;height:34px;font-size:22px;margin-bottom:2px}.result-dialog h2{margin:2px 0;font-size:17px}.result-dialog .result-stats{margin:4px 0;padding:6px 4px}.result-stats b{font-size:20px}.result-stats>div{gap:2px}.result-dialog .best-message{min-height:0}.result-section{margin:8px 0}#result-actions .dialog-primary{padding:10px}}
+
+.timer-stat{position:relative}
+.combo-bonus{position:absolute;z-index:6;left:0;top:100%;display:block;width:max-content;padding:5px 9px;border-radius:8px;background:#17623f;color:#fff;font-size:14px;line-height:1.25;font-weight:900;box-shadow:0 3px 8px #173a2844;pointer-events:none}
+.combo-bonus[hidden]{display:none}
+.combo-bonus.bonus-pop{animation:bonus-pop 1.5s ease-out}
+@keyframes bonus-pop{0%{opacity:0;transform:translateY(5px) scale(.85)}15%{opacity:1;transform:translateY(0) scale(1.05)}80%{opacity:1}100%{opacity:0;transform:translateY(-4px)}}
+@media(max-width:760px){.combo-bonus{font-size:12px;padding:3px 7px}}

@@ -170,7 +170,7 @@
   const state = {
     phase: 'ready', code: '', errorMessage: '', combo: 0, maxCombo: 0, mistakes: 0,
     orders: [], customers: [], requestCounts: {}, speakerSequence: 0, deadline: 0,
-    tickTimer: null, pendingResult: false, sound: false, audio: null, best: 0,
+    tickTimer: null, pendingResult: false, resultReady: false, sound: false, audio: null, best: 0,
   };
   try { state.best = Number(localStorage.getItem(BEST_KEY)) || 0; } catch { /* Storage is optional. */ }
   $('#best').textContent = state.best || '—';
@@ -225,8 +225,8 @@
     $('#menu-preview').classList.toggle('unknown-menu', complete && !menu);
     $('#menu-preview').classList.toggle('order-error', Boolean(state.errorMessage));
     keys.forEach((key) => { key.disabled = !playing; });
-    $('#submit-button').hidden = state.phase === 'ready' || (playing && !complete);
-    $('#submit-button').disabled = playing ? !complete : state.phase !== 'finished';
+    $('#submit-button').hidden = state.phase === 'ready' || (playing && !complete) || (state.phase === 'finished' && !state.resultReady);
+    $('#submit-button').disabled = playing ? !complete : state.phase !== 'finished' || !state.resultReady;
   }
 
   function createRequest(excludeCode, startDelay = REFILL_DELAY) {
@@ -334,7 +334,7 @@
   function startGame() {
     stopTicker();
     const now = performance.now();
-    Object.assign(state, { phase: 'playing', code: '', combo: 0, maxCombo: 0, mistakes: 0, orders: [], customers: [], requestCounts: {}, speakerSequence: 0, deadline: now + GAME_DURATION, pendingResult: false });
+    Object.assign(state, { phase: 'playing', code: '', combo: 0, maxCombo: 0, mistakes: 0, orders: [], customers: [], requestCounts: {}, speakerSequence: 0, deadline: now + GAME_DURATION, pendingResult: false, resultReady: false });
     $('#score').textContent = '0';
     $('#submit-button span').textContent = '次へ進む';
     $('#start-screen').hidden = true;
@@ -364,7 +364,7 @@
     renderCode();
   }
   function submitOrder() {
-    if (state.phase === 'finished') { startGame(); return; }
+    if (state.phase === 'finished') { if (state.resultReady) startGame(); return; }
     if (!timeAvailable() || readingPaused() || state.code.length !== 4) return;
     const index = state.customers.findIndex((customer) => !customer.served && customer.menu.code === state.code && performance.now() >= customer.startsAt);
     if (index < 0) {
@@ -414,10 +414,12 @@
       $('#best').textContent = String(state.best);
     }
     $('#best-message').textContent = newBest ? 'ベスト更新！' : '';
+    renderResultList('#result-ordered', state.orders);
+    renderResultList('#result-missed', state.customers.filter((customer) => !customer.served && !customer.card.hidden && customer.startsAt <= state.deadline).map((customer) => customer.menu));
     $('#submit-button span').textContent = 'もう一度';
     renderCode();
     renderTime();
-    if (!dialogs.some((dialog) => dialog.open)) $('#result-dialog').showModal();
+    if (!dialogs.some((dialog) => dialog.open)) showResult();
     else state.pendingResult = true;
   }
   function menuRow(menu) {
@@ -434,6 +436,28 @@
     code.textContent = menu.code;
     row.append(emoji, name, code);
     return row;
+  }
+  function renderResultList(selector, menus) {
+    if (menus.length) { $(selector).replaceChildren(...menus.map(menuRow)); return; }
+    const empty = document.createElement('p');
+    empty.className = 'result-empty';
+    empty.textContent = 'なし';
+    $(selector).replaceChildren(empty);
+  }
+  function showResult() {
+    state.resultReady = false;
+    $('#result-actions').hidden = true;
+    $('#replay-button').disabled = true;
+    $('#result-close').disabled = true;
+    $('#result-dialog').showModal();
+    setTimeout(() => {
+      if (state.phase !== 'finished' || !$('#result-dialog').open) return;
+      state.resultReady = true;
+      $('#result-actions').hidden = false;
+      $('#replay-button').disabled = false;
+      $('#result-close').disabled = false;
+      renderCode();
+    }, 1000);
   }
   function openDialog(selector) {
     if (state.phase === 'playing' && !timeAvailable()) return;
@@ -458,7 +482,7 @@
       if (state.phase === 'playing' && !timeAvailable()) return;
       if (state.pendingResult && !dialogs.some((item) => item.open)) {
         state.pendingResult = false;
-        $('#result-dialog').showModal();
+        showResult();
       }
     });
     dialog.addEventListener('click', (event) => {
@@ -469,6 +493,7 @@
   });
   $('#replay-button').addEventListener('click', () => { $('#result-dialog').close(); startGame(); });
   $('#result-close').addEventListener('click', () => $('#result-dialog').close());
+  $('#result-dialog').addEventListener('cancel', (event) => { if (!state.resultReady) event.preventDefault(); });
   document.addEventListener('visibilitychange', () => {
     if (state.phase === 'playing' && timeAvailable()) {
       state.customers.forEach((customer) => { customer.nextCharacterAt = Math.max(customer.startsAt, performance.now()) + (customer.index === customer.introductionLength ? ORDER_NUMBER_DELAY : CHARACTER_DELAY); });

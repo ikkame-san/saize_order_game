@@ -156,7 +156,7 @@ dialog{border:1px solid #d9ddce;background:#fffdf7;color:var(--ink);border-radiu
 .result-dialog .best-message{margin:2px 0}
 .result-scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:0 4px;scrollbar-width:thin}
 #result-actions{flex:0 0 auto;padding-top:8px}
-#result-actions[hidden]{display:block;visibility:hidden}
+#result-actions button:disabled{opacity:.5;cursor:default}
 #result-actions .dialog-primary{margin-top:0}
 #result-actions .text-button{margin-top:4px}
 @media(max-height:600px){.result-dialog[open]{padding-top:12px;padding-bottom:12px}.result-dialog .result-icon{width:34px;height:34px;font-size:22px;margin-bottom:2px}.result-dialog h2{margin:2px 0;font-size:17px}.result-dialog .result-stats{margin:4px 0;padding:6px 4px}.result-stats b{font-size:20px}.result-stats>div{gap:2px}.result-dialog .best-message{min-height:0}.result-section{margin:8px 0}#result-actions .dialog-primary{padding:10px}}

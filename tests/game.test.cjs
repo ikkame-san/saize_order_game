@@ -190,9 +190,9 @@ test('メニュー表示中の時間切れは結果表示を待ち、閉じた�
   assert.equal(app.get('#time-left').textContent, '0:00');
   app.get('#menu-dialog').close();
   assert.equal(app.get('#result-dialog').open, true);
-  assert.equal(app.get('#result-actions').hidden, true);
-  app.tick(999); assert.equal(app.get('#result-actions').hidden, true);
-  app.tick(1); assert.equal(app.get('#result-actions').hidden, false);
+  assert.equal(app.get('#replay-button').disabled, true);
+  app.tick(999); assert.equal(app.get('#replay-button').disabled, true);
+  app.tick(1); assert.equal(app.get('#replay-button').disabled, false);
 });
 
 test('再プレイは新しい60秒・3件・注文数ゼロから始まりベストを維持する', () => {
@@ -209,7 +209,7 @@ test('再プレイは新しい60秒・3件・注文数ゼロから始まりベ�
   app.tick(1); assert.equal(app.get('#result-dialog').open, true);
 });
 
-test('結果に注文済みと残った吹き出しを番号付きで分け、ボタンは1秒後に表示する', () => {
+test('結果に注文済みと残った吹き出しを番号付きで分け、ボタンは1秒後に押せる', () => {
   const app = setup(() => 0.999999); app.start(); app.tick(24000);
   const codes = app.allCodes();
   app.jump(35999);
@@ -222,13 +222,13 @@ test('結果に注文済みと残った吹き出しを番号付きで分け、�
   assert.match(app.get('#result-missed').textContent, new RegExp(codes[1]));
   assert.match(app.get('#result-missed').textContent, new RegExp(codes[2]));
   assert.equal(app.get('#result-missed').textContent.includes(codes[0]), false);
-  assert.equal(app.get('#result-actions').hidden, true);
   assert.equal(app.get('#replay-button').disabled, true);
+  assert.equal(app.get('#result-close').disabled, true);
   assert.equal(app.get('#submit-button').disabled, true);
-  app.tick(999); assert.equal(app.get('#result-actions').hidden, true);
+  app.tick(999); assert.equal(app.get('#replay-button').disabled, true);
   app.tick(1);
-  assert.equal(app.get('#result-actions').hidden, false);
   assert.equal(app.get('#replay-button').disabled, false);
+  assert.equal(app.get('#result-close').disabled, false);
 });
 
 test('デザートはすぐに／あとでを明言し、別の番号で扱う', () => {

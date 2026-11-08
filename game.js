@@ -446,14 +446,12 @@
   }
   function showResult() {
     state.resultReady = false;
-    $('#result-actions').hidden = true;
     $('#replay-button').disabled = true;
     $('#result-close').disabled = true;
     $('#result-dialog').showModal();
     setTimeout(() => {
       if (state.phase !== 'finished' || !$('#result-dialog').open) return;
       state.resultReady = true;
-      $('#result-actions').hidden = false;
       $('#replay-button').disabled = false;
       $('#result-close').disabled = false;
       renderCode();

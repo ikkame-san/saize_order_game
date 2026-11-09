@@ -71,7 +71,7 @@ function setup(random = Math.random, initialStorage = {}) {
 }
 
 
-test('開始までは進まず、3枠の注文が4秒間隔で始まり、400msずつ文字送りする', () => {
+test('開始までは進まず、3枠の注文が3.5秒間隔で始まり、350msずつ文字送りする', () => {
   const app = setup();
   assert.equal(app.get('#submit-button').disabled, true);
   app.tick(10000);
@@ -85,18 +85,18 @@ test('開始までは進まず、3枠の注文が4秒間隔で始まり、400ms�
   assert.equal(app.customers()[0].hidden, false);
   assert.equal(app.customers()[1].hidden, true);
   assert.equal(app.customers()[2].hidden, true);
-  app.tick(399);
+  app.tick(349);
   app.customers().forEach((card) => assert.equal(card.children[0].textContent, ''));
   app.tick(1);
   assert.equal([...app.speech(0)].length, 1);
   assert.equal(app.speech(1), '');
-  app.tick(3600);
+  app.tick(3150);
   assert.equal(app.customers()[1].hidden, false);
   assert.equal(app.speech(1), '');
-  app.tick(399); assert.equal(app.speech(1), '');
+  app.tick(349); assert.equal(app.speech(1), '');
   app.tick(1); assert.equal([...app.speech(1)].length, 1);
-  app.tick(3600); assert.equal(app.customers()[2].hidden, false);
-  app.tick(400); assert.equal([...app.speech(2)].length, 1);
+  app.tick(3150); assert.equal(app.customers()[2].hidden, false);
+  app.tick(350); assert.equal([...app.speech(2)].length, 1);
   app.tick(30000);
   assert.equal(app.customers().length, 3);
   assert.equal(new Set(app.allCodes()).size, 3);
@@ -118,15 +118,17 @@ test('正解した枠だけを補充し、他の2件の会話は維持する。�
   assert.equal(app.get('#score').textContent, '1');
   assert.match(app.get('#menu-preview').textContent, /違う/);
   assert.equal(app.get('#menu-preview').classes.has('order-error'), true);
-  app.tick(700);
+  app.tick(599);
+  assert.equal(app.customers()[1], before[1]);
+  app.tick(1);
   assert.notEqual(app.customers()[1], before[1]);
   assert.equal(app.speech(1), '');
   assert.equal(app.customers()[1].hidden, true);
-  app.tick(799);
+  app.tick(699);
   assert.equal(app.customers()[1].hidden, true);
   app.tick(1);
   assert.equal(app.customers()[1].hidden, false);
-  app.tick(399);
+  app.tick(349);
   assert.equal(app.speech(1), '');
   app.tick(1);
   assert.equal([...app.speech(1)].length, 1);
@@ -193,12 +195,20 @@ test('間違えるとコンボが切れ、次の正解は0.1秒に戻る', () =>
   app.tick(58700); assert.equal(app.get('#result-dialog').open, true);
 });
 
+test('コンボの表示は正解から1秒で消える', () => {
+  const app = setup(() => 0.999999); app.start();
+  app.type('3901'); app.submit();
+  assert.equal(app.get('#combo-bonus').hidden, false);
+  app.tick(999); assert.equal(app.get('#combo-bonus').hidden, false);
+  app.tick(1); assert.equal(app.get('#combo-bonus').hidden, true);
+});
+
 test('メニュー・背景タブでは文字送りだけ停止し、60秒の時計は止めない', () => {
-  const app = setup(); app.start(); app.tick(400);
+  const app = setup(); app.start(); app.tick(350);
   app.get('#menu-button').click(); app.tick(10000);
   assert.equal([...app.speech(0)].length, 1);
   assert.equal(app.get('#time-left').textContent, '0:50');
-  app.get('#menu-dialog').close(); app.tick(400);
+  app.get('#menu-dialog').close(); app.tick(350);
   assert.equal([...app.speech(0)].length, 2);
   app.document.hidden = true; app.document.fire('visibilitychange');
   app.jump(60000);
@@ -298,7 +308,7 @@ test('注文外でも品名は表示し、削除・4桁制限・PC入力・誤�
   assert.equal(app.get('#result-accuracy').textContent, '50%');
 });
 
-test('連続で注文を済ませると各枠で1.5秒後に補充し、開始待ちの番号は正解にしない', () => {
+test('連続で注文を済ませると各枠で1.3秒後に補充し、開始待ちの番号は正解にしない', () => {
   const app = setup(() => 0.999999); app.start(); app.tick(24000);
   app.allCodes().forEach((code) => { app.type(code); app.submit(); });
   assert.equal(app.get('#score').textContent, '3');
@@ -306,33 +316,33 @@ test('連続で注文を済ませると各枠で1.5秒後に補充し、開始�
   app.customers().forEach((card) => assert.equal(card.classes.has('order-correct'), true));
   app.type('2328'); app.submit();
   assert.equal(app.get('#score').textContent, '3');
-  app.tick(700);
+  app.tick(600);
   app.customers().forEach((card) => assert.equal(card.hidden, true));
-  app.tick(799);
+  app.tick(699);
   app.customers().forEach((card) => assert.equal(card.hidden, true));
   app.tick(1);
   app.customers().forEach((card) => assert.equal(card.hidden, false));
   assert.equal(app.speech(0), '');
-  app.tick(399); assert.equal(app.speech(0), '');
+  app.tick(349); assert.equal(app.speech(0), '');
   app.tick(1);
   app.customers().forEach((card, index) => assert.equal([...app.speech(index)].length, 1));
 });
 
-test('最初の開始待ちがある間も、正解した枠は1.5秒で補充する', () => {
+test('最初の開始待ちがある間も、正解した枠は1.3秒で補充する', () => {
   const app = setup(() => 0.999999); app.start();
   app.type('3901'); app.submit();
-  app.tick(1499);
+  app.tick(1299);
   assert.equal(app.customers()[0].hidden, true);
   assert.equal(app.customers()[1].hidden, true);
   app.tick(1);
   assert.equal(app.customers()[0].hidden, false);
   assert.equal(app.customers()[1].hidden, true);
-  app.tick(2500);
+  app.tick(2200);
   assert.equal(app.customers()[1].hidden, false);
   assert.equal(app.customers()[2].hidden, true);
 });
 
-test('注文番号は別の行に移り、4桁は強調しながら400msずつ表示される', () => {
+test('注文番号は別の行に移り、4桁は強調しながら350msずつ表示される', () => {
   const app = setup(() => 0.999999); app.start();
   const intro = '私はあとでティラミス クラシコが食べたい！';
   const text = app.customers()[0].children[0];
@@ -340,19 +350,19 @@ test('注文番号は別の行に移り、4桁は強調しながら400msずつ�
   const line = text.children[1];
   const label = line.children[0];
   const number = line.children[1];
-  app.tick([...intro].length * 400);
+  app.tick([...intro].length * 350);
   assert.equal(body.textContent, intro);
   assert.equal(line.hidden, true);
-  app.tick(3999); assert.equal(line.hidden, true);
+  app.tick(3499); assert.equal(line.hidden, true);
   app.tick(1);
   assert.equal(line.hidden, false);
   assert.equal(label.textContent, '注');
   assert.equal(number.textContent, '');
-  app.tick(1600);
+  app.tick(1400);
   assert.equal(label.textContent, '注文番号は');
   assert.equal(number.textContent, '');
-  app.tick(400); assert.equal(number.textContent, '3');
-  app.tick(1200);
+  app.tick(350); assert.equal(number.textContent, '3');
+  app.tick(1050);
   assert.equal(number.textContent, '3901');
   assert.equal(number.className, 'order-number');
   assert.equal(number.classes.has('typing'), false);
@@ -366,16 +376,16 @@ test('料理名だけを太字にし、文字送り中も料理名が1文字ず�
   const name = 'ティラミス クラシコ';
   assert.equal(menuName.tagName, 'STRONG');
   assert.equal(menuName.className, 'menu-name-emphasis');
-  app.tick(2000);
+  app.tick(1750);
   assert.equal(prefix.textContent, '私はあとで');
   assert.equal(menuName.textContent, '');
   assert.equal(suffix.textContent, '');
-  app.tick(399); assert.equal(menuName.textContent, '');
+  app.tick(349); assert.equal(menuName.textContent, '');
   app.tick(1); assert.equal(menuName.textContent, 'テ');
-  app.tick(([...name].length - 1) * 400);
+  app.tick(([...name].length - 1) * 350);
   assert.equal(menuName.textContent, name);
   assert.equal(suffix.textContent, '');
-  app.tick(400);
+  app.tick(350);
   assert.equal(suffix.textContent, 'が');
   assert.equal(introduction.textContent, `私はあとで${name}が`);
 });
@@ -383,15 +393,15 @@ test('料理名だけを太字にし、文字送り中も料理名が1文字ず�
 test('注文番号前の待ち時間中も他の注文は進み、画面復帰時に待ちを飛ばさない', () => {
   const app = setup(() => 0.999999); app.start();
   const intro = '私はあとでティラミス クラシコが食べたい！';
-  app.tick([...intro].length * 400);
+  app.tick([...intro].length * 350);
   const line = app.customers()[0].children[0].children[1];
   const otherBefore = app.speech(1);
-  app.tick(400);
+  app.tick(350);
   assert.equal(line.hidden, true);
   assert.ok(app.speech(1).length > otherBefore.length);
   app.document.hidden = true; app.document.fire('visibilitychange');
   app.tick(2000);
   app.document.hidden = false; app.document.fire('visibilitychange');
-  app.tick(3999); assert.equal(line.hidden, true);
+  app.tick(3499); assert.equal(line.hidden, true);
   app.tick(1); assert.equal(line.hidden, false);
 });

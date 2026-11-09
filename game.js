@@ -159,10 +159,10 @@
   ];
   const MAX_PENDING = 3;
   const GAME_DURATION = 60_000;
-  const CHARACTER_DELAY = 400;
-  const ORDER_NUMBER_DELAY = 4000;
-  const ORDER_START_INTERVAL = 4000;
-  const REFILL_DELAY = 1500;
+  const CHARACTER_DELAY = 350;
+  const ORDER_NUMBER_DELAY = 3500;
+  const ORDER_START_INTERVAL = 3500;
+  const REFILL_DELAY = 1300;
   const BEST_KEY = 'saize-order-timeattack-best';
   const $ = (selector) => document.querySelector(selector);
   const keys = [...document.querySelectorAll('[data-key]')];
@@ -391,11 +391,11 @@
       void bonus.offsetWidth;
       bonus.classList.add('bonus-pop');
       clearTimeout(state.bonusTimer);
-      state.bonusTimer = setTimeout(() => { bonus.hidden = true; }, 1500);
+      state.bonusTimer = setTimeout(() => { bonus.hidden = true; }, 1000);
       // Reserve the next request immediately, while the success effect plays.
       customer.replacement = createRequest(customer.menu.code);
       customer.served = true;
-      customer.deliverUntil = performance.now() + 700;
+      customer.deliverUntil = performance.now() + 600;
       customer.card.classList.add('order-correct');
       customer.accessible.textContent = '正解！';
       $('#score').textContent = String(state.orders.length);

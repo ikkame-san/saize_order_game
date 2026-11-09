@@ -7,9 +7,9 @@
   <meta name="description" content="同じ卓の友達の声を聞いて、4桁の番号をポチポチ。スマホとPCで遊べるサイゼ注文ゲーム。">
   <title>サイゼ注文ゲーム | きょうは、あなたが注文係。</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='20' fill='%23174c3b'/%3E%3Ctext x='40' y='55' text-anchor='middle' font-size='48' fill='%23fff9e9'%3Eサ%3C/text%3E%3C/svg%3E">
-  <link rel="stylesheet" href="styles.css?v=combo21">
+  <link rel="stylesheet" href="styles.css?v=timing22">
   <link rel="stylesheet" href="order-pad.css?v=feedback8">
-  <script src="game.js?v=combo20" defer></script>
+  <script src="game.js?v=timing22" defer></script>
 </head>
 <body class="is-ready">
   <svg class="icon-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
@@ -98,7 +98,7 @@
   </main>
   <footer class="site-footer"><span>非公式ゲーム</span></footer>
 
-  <dialog id="help-dialog" aria-labelledby="help-title"><button class="close-dialog" aria-label="閉じる">×</button><h2 id="help-title">あそびかた</h2><ol class="how-to"><li><span>01</span><div><b>友達の注文を聞く</b><p>最大3件。開始は4秒間隔、文字は0.4秒ごと。</p></div></li><li><span>02</span><div><b>4桁入力して「次へ進む」</b><p>順番は自由。PCは数字キーとEnter。</p></div></li><li><span>03</span><div><b>60秒で何品？</b><p>デザートの「すぐに／あとで」に注意。メニュー中も時間は進みます。</p></div></li></ol><p class="dialog-note">非公式ゲームです。</p><button class="dialog-primary close-dialog-action">OK</button></dialog>
+  <dialog id="help-dialog" aria-labelledby="help-title"><button class="close-dialog" aria-label="閉じる">×</button><h2 id="help-title">あそびかた</h2><ol class="how-to"><li><span>01</span><div><b>友達の注文を聞く</b><p>最大3件。開始は3.5秒間隔、文字は0.35秒ごと。</p></div></li><li><span>02</span><div><b>4桁入力して「次へ進む」</b><p>順番は自由。PCは数字キーとEnter。</p></div></li><li><span>03</span><div><b>60秒で何品？</b><p>デザートの「すぐに／あとで」に注意。メニュー中も時間は進みます。</p></div></li></ol><p class="dialog-note">非公式ゲームです。</p><button class="dialog-primary close-dialog-action">OK</button></dialog>
   <dialog id="menu-dialog" aria-labelledby="menu-title"><button class="close-dialog" aria-label="閉じる">×</button><h2 id="menu-title">メニュー</h2><div id="menu-list" class="menu-list"></div><p class="dialog-note">番号参考：<a href="https://www.saizeriya.co.jp/menu-popular/" target="_blank" rel="noreferrer">公式サイト</a>（2026年11月1日確認）。</p></dialog>
   <dialog id="result-dialog" class="result-dialog" aria-labelledby="result-title"><div class="result-icon">✓</div><h2 id="result-title">タイムアップ！</h2><div class="result-stats"><div><b id="result-score">0</b><span>注文数</span></div><div><b id="result-accuracy">100%</b><span>正確さ</span></div><div><b id="result-combo">5</b><span>最大コンボ</span></div></div><p id="best-message" class="best-message"></p><div class="result-scroll" role="region" aria-label="注文結果の一覧" tabindex="0"><section class="result-section"><h3>注文できたメニュー</h3><div id="result-ordered" class="result-list"></div></section><section class="result-section"><h3>注文できなかったメニュー</h3><div id="result-missed" class="result-list"></div></section></div><div id="result-actions"><button id="replay-button" class="dialog-primary" disabled>もう一度</button><button id="result-close" class="text-button" disabled>戻る</button></div></dialog>
 </body>
